@@ -102,7 +102,6 @@ class Akita_JOSE_JWS_Test
         $signatureBaseString = $jws->getSignatureBaseString();
         $jws->sign($signatureBaseString, $private_key);
         $token = $jws->getTokenString();
-        //$this->assertEquals('eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXUyJ9..OSkKbZavSevIadLDmCksURCPYY9ls6DqbcgqpCNdTtBqHbeqwnfGeBrl9atO-l-JzyRAfCAAXZWysrJjLUKwyflsBoU-y285NerZ2sAQuz7h2NwaeyNZOJas1f7zfL5ldnrbSha3RlffB1dOp6433oqSZhTuZ7deUF1emALP3lZM7zpAq5kxonkPcJ1G_4NSCcBd1DU8AuCYcBqM6QTmNUycPa-wwhs2qWPIXeiLpc9sR8lWZ-PYUH0dbBAJd_D0wE-vcvyVKws8H943ip-6JBSGIVSD78hgrBw7h0DV_ylAuBveBEemtmg95xopQl0b2sEvFlb17z7zoG-Q8apNjQ', $token);
         $this->assertEquals('eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXUyJ9..E2roykYfZbDJGyaeJAxPtkPses8hP--JnlFZMbuudPoLMQBs13LV1--RE_H65LPouojYf5CgRnL54FxtpLmXCB9EtY-WOI23dtiZDssTxuB308Z7rjXN0P7YULrYrlcOlwEyLpq4CMt0IjmkuC28Tr9cDf_BIGZQM8RVXorX3cGXxuFp8MNsln2TkhmWU8hKktZ6H-iZJ9FXZYF3X-Zpgd4TUUY7X9VHKJmV8sYmcV29Jg7q-ltJb_iQY7vEkU0P1KZTExzxOUbDB3HUbyga87XYDdHZMFmCQ5YsFDVa13u9AOaW5CHcrogzVujCIAiyl-droPf0RqOs4dVBP5e03A', $token);
 
         $jws->setHeaderItem('alg', 'RS384');
