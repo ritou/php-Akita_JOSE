@@ -24,10 +24,10 @@ class Akita_JOSE_JWT_Test
         $this->assertEquals('eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0..', $token_str);
     }
 
-    public function testGetSignatureBaseString()
+    public function testGenerateSigningInput()
     {
         $jwt = new Akita_JOSE_JWT('none');
-        $token_str = $jwt->getSignatureBaseString();
+        $token_str = $jwt->generateSigningInput();
         $this->assertEquals('eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.', $token_str);
     }
 
@@ -35,10 +35,10 @@ class Akita_JOSE_JWT_Test
     {
         $jwt = new Akita_JOSE_JWT('none');
         $jwt->setHeaderItem('alg', 'HS256');
-        $token_str = $jwt->getSignatureBaseString();
+        $token_str = $jwt->generateSigningInput();
         $this->assertEquals('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.', $token_str);
         $jwt->setHeaderItem('opt', 'option_value');
-        $token_str = $jwt->getSignatureBaseString();
+        $token_str = $jwt->generateSigningInput();
         $this->assertEquals('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsIm9wdCI6Im9wdGlvbl92YWx1ZSJ9.', $token_str);
     }
 
@@ -48,13 +48,13 @@ class Akita_JOSE_JWT_Test
 
         // payload is not array
         $jwt->setPayload('payload string');
-        $token_str = $jwt->getTokenString();
-        $this->assertEquals('eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.cGF5bG9hZCBzdHJpbmc.', $token_str);
+        $token_str = $jwt->generateSigningInput();
+        $this->assertEquals('eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.cGF5bG9hZCBzdHJpbmc', $token_str);
 
         // payload is array
         $jwt->setPayload(array('payload_header'=>'payload_value'));
-        $token_str = $jwt->getTokenString(true);
-        $this->assertEquals('eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJwYXlsb2FkX2hlYWRlciI6InBheWxvYWRfdmFsdWUifQ.', $token_str);
+        $token_str = $jwt->generateSigningInput();
+        $this->assertEquals('eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJwYXlsb2FkX2hlYWRlciI6InBheWxvYWRfdmFsdWUifQ', $token_str);
     }
 
     public function testGetPayload()
@@ -76,11 +76,6 @@ class Akita_JOSE_JWT_Test
         $this->assertNotEquals($expect_body, $body);
 
         $body = Akita_JOSE_JWT::getPayload($jwt, true);
-        $expect_body = array(
-            'iss' => 'joe',
-            'exp' => 1300819380,
-            'http://example.com/is_root' => true
-        );
         $this->assertEquals($expect_body, $body);
     }
 
@@ -100,4 +95,26 @@ class Akita_JOSE_JWT_Test
         );
         $this->assertEquals($expect_header, $header);
     }
+
+    public function testGetEncodedHeader()
+    {
+        $jwt = "eyJhbGciOiJub25lIn0.eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ.";
+        $encoded_header = Akita_JOSE_JWT::getEncodedHeader($jwt);
+        $this->assertEquals('eyJhbGciOiJub25lIn0', $encoded_header);
+    }
+
+    public function testGetEncodedPayload()
+    {
+        $jwt = "eyJhbGciOiJub25lIn0.eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ.";
+        $encoded_payload = Akita_JOSE_JWT::getEncodedPayload($jwt);
+        $this->assertEquals('eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ', $encoded_payload);
+    }
+
+    public function testGetSigningInput()
+    {
+        $jwt = "eyJhbGciOiJub25lIn0.eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ.";
+        $signinginput = Akita_JOSE_JWT::getSigningInput($jwt);
+        $this->assertEquals('eyJhbGciOiJub25lIn0.eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ', $signinginput);
+    }
+
 }

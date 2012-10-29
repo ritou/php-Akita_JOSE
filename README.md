@@ -28,22 +28,38 @@ This is PHP JOSE library.
 
 ### Usage ###
 
+    // Payload Data
+    $data = array("foo" => "var");
+    
+    // JWS Generation
     // HS256
-    $shared_key = 'This is shared key';
     $jws = new Akita_JOSE_JWS('HS256');
-    $signatureBaseString = $jws->getSignatureBaseString();
-    $jws->sign($signatureBaseString, $shared_key);
-    $token = $jws->getTokenString();
-
-    // RSXXX
+    $jws->setPayload($data);
+    $shared_key = 'This is shared key';
+    $jws->sign($shared_key);
+    $hs256_token = $jws->getTokenString();
+    
+    // RS256
+    $jws = new Akita_JOSE_JWS('RS256');
+    $jws->setPayload($data);
     // command for private key generation "openssl genrsa -aes256 -out private.key 2048"
     $passphrase = "Akita_JOSE";
     $private_key = openssl_pkey_get_private("file://".dirname(__FILE__)."/private.key", $passphrase);
+    $jws->sign($private_key);
+    $rs256_token = $jws->getTokenString();
+    
+    // JWS Verification
+    // HS256
+    $jws = Akita_JOSE_JWS::load($hs256_token, true);
+    if($jws->verify($shared_key)){
+        ...
+    }
 
-    $jws = new Akita_JOSE_JWS('RS256');
-    $signatureBaseString = $jws->getSignatureBaseString();
-    $jws->sign($signatureBaseString, $private_key);
-    $token = $jws->getTokenString();
+    // RS256
+    $jws = Akita_JOSE_JWS::load($rs256_token, true);
+    if($jws->verify($private_key)){
+        ...
+    }
 
 AUTHOR
 ------------------------------------------------------

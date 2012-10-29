@@ -20,6 +20,9 @@ class Akita_JOSE_JWT
     protected $_payload;
     protected $_signature;
 
+    // used by verification
+    protected $_tokenstring;
+
     public function __construct($alg, $typ='JWT'){
         $this->_header['alg'] = $alg;
         $this->_header['typ'] = $typ;
@@ -38,8 +41,8 @@ class Akita_JOSE_JWT
      *
      * @return string JWT String
      */
-    public function getTokenString($payload_is_array=false){
-        $token = $this->getSignatureBaseString($payload_is_array);
+    public function getTokenString(){
+        $token = $this->generateSigningInput();
         $token .= ".";
         if(!empty($this->_signature)){
             $token .= Akita_JOSE_Base64::urlEncode($this->_signature);
@@ -48,18 +51,43 @@ class Akita_JOSE_JWT
     }
 
     /**
-     * return JWT Signature Base String
+     * set JWT String
      *
-     * @return string Signature Base String
+     * @return string JWT String
      */
-    public function getSignatureBaseString($payload_is_array=false){
+    public function setTokenString($jwt){
+        $this->_tokenstring = $jwt;
+    }
+
+    /**
+     * return JWT Signing Input
+     *
+     * @return string Signing Input String
+     */
+    public function generateSigningInput(){
         $token = Akita_JOSE_Base64::urlEncode(Akita_JOSE_Json::encode($this->_header)).".";
-        if($payload_is_array){
+        if(is_array($this->_payload)){
             $token .= Akita_JOSE_Base64::urlEncode(Akita_JOSE_Json::encode($this->_payload));
         }else{
             $token .= Akita_JOSE_Base64::urlEncode($this->_payload);
         }
         return $token;
+    }
+
+    /**
+     * return JWT Header array
+     *
+     * @param string $jwt JWT string
+     * @return array JWT Header
+     */
+    static public function getHeader($jwt){
+        // split 3 parts
+        $part = explode('.', $jwt);
+        if(!is_array($part) || empty($part) || count($part) !== 3 ){
+            return false;
+        }
+        $header = json_decode(Akita_JOSE_Base64::urlDecode($part[0]),true);
+        return $header;
     }
 
     /**
@@ -84,18 +112,47 @@ class Akita_JOSE_JWT
     }
 
     /**
-     * return JWT Header array
+     * return JWT Encoded Header string
      *
      * @param string $jwt JWT string
-     * @return array JWT Header
+     * @return encoded JWT Header string
      */
-    static public function getHeader($jwt){
+    static public function getEncodedHeader($jwt){
         // split 3 parts
         $part = explode('.', $jwt);
         if(!is_array($part) || empty($part) || count($part) !== 3 ){
             return false;
         }
-        $header = json_decode(Akita_JOSE_Base64::urlDecode($part[0]),true);
-        return $header;
+        return $part[0];
+    }
+
+    /**
+     * return JWT Encoded payload string
+     *
+     * @param string $jwt JWT string
+     * @return encoded JWT Payload string
+     */
+    static public function getEncodedPayload($jwt){
+        // split 3 parts
+        $part = explode('.', $jwt);
+        if(!is_array($part) || empty($part) || count($part) !== 3 ){
+            return false;
+        }
+        return $part[1];
+    }
+
+    /**
+     * return Siging input string
+     *
+     * @param string $jwt JWT string
+     * @return signing input string
+     */
+    static public function getSigningInput($jwt){
+        // split 3 parts
+        $part = explode('.', $jwt);
+        if(!is_array($part) || empty($part) || count($part) !== 3 ){
+            return false;
+        }
+        return self::getEncodedHeader($jwt).".".self::getEncodedPayload($jwt);
     }
 }
