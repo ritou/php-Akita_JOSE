@@ -57,7 +57,8 @@ This is PHP JOSE library.
 
     // RS256
     $jws = Akita_JOSE_JWS::load($rs256_token, true);
-    if($jws->verify($private_key)){
+    $public_key = openssl_pkey_get_public("file://".dirname(__FILE__)."/public.key");
+    if($jws->verify($public_key)){
         ...
     }
 
